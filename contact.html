@@ -12,13 +12,86 @@
 <div><h4>Solutions</h4><a href="services.html">AI & Machine Learning</a><a href="services.html#software">Software Development</a><a href="services.html#data">Data & Analytics</a><a href="services.html#cloud">Cloud & DevOps</a></div>
 <div><h4>Explore</h4><a href="products.html">Products</a><a href="industries.html">Industries</a><a href="case-studies.html">Case Studies</a><a href="insights.html">Insights</a></div></div>
 <div class="container copyright"><span>© 2026 THENDRA AI Software. All rights reserved.</span><span>Responsive • Accessible • Scalable</span></div></footer>
-<script src="assets/app.js"></script></body></html>
+<script src="assets/app.js"></script>
 
+<script>
+const contactForm = document.getElementById("contactForm");
+const formMsg = document.getElementById("formMsg");
 
-fetch("/api/contact", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
+contactForm.addEventListener("submit", async function (event) {
+
+    event.preventDefault();
+
+    const submitButton = contactForm.querySelector(
+        'button[type="submit"]'
+    );
+
+    // Disable button while submitting
+    submitButton.disabled = true;
+    submitButton.textContent = "Sending...";
+
+    formMsg.textContent = "Sending your enquiry...";
+
+    // Collect form data
+    const formData = new FormData(contactForm);
+
+    const data = {
+        name: formData.get("name"),
+        company: formData.get("company"),
+        email: formData.get("email"),
+        phone: formData.get("phone"),
+        service: formData.get("service"),
+        budget: formData.get("budget"),
+        timeline: formData.get("timeline"),
+        description: formData.get("description")
+    };
+
+    console.log("Sending enquiry:", data);
+
+    try {
+
+        const response = await fetch("/api/contact", {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        console.log("API response:", result);
+
+        if (!response.ok || !result.success) {
+            throw new Error(
+                result.message || "Unable to submit enquiry."
+            );
+        }
+
+        // Success
+        formMsg.textContent =
+            "✓ Your enquiry has been received. Our team will contact you shortly.";
+
+        contactForm.reset();
+
+    } catch (error) {
+
+        console.error("Contact form error:", error);
+
+        formMsg.textContent =
+            "✕ Unable to submit your enquiry. Please try again.";
+
+    } finally {
+
+        submitButton.disabled = false;
+        submitButton.textContent = "Submit Enquiry →";
+
+    }
+
 });
+</script>
+
+</body>
+</html>
