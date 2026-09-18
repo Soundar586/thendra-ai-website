@@ -58,6 +58,7 @@ header {
 
 .brand img {
   width:180px;
+  height:80px;
   display:flex;
 }
 
@@ -497,21 +498,21 @@ section {
 .team {
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  gap:18px
+  gap:18px;
 }
 
 .person {
-  background:#fff;
+  background:#d1f1f7;
   border:1px solid var(--line);
   border-radius:20px;
   padding:24px
 }
 
 .avatar {
-  width:58px;
+  width:60px;
   height:58px;
   border-radius:17px;
-  background:linear-gradient(135deg,#dbeafe,#ccfbf1);
+  background:linear-gradient(135deg,#a3bcde,#ccfbf1);
   display:grid;
   place-items:center;
   font-weight:900;
