@@ -1,13 +1,36 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_SECRET_KEY
-);
-
 export default async function handler(req, res) {
 
-    // Only allow POST requests
+    console.log(
+        "SUPABASE_URL exists:",
+        !!process.env.SUPABASE_URL
+    );
+
+    console.log(
+        "SUPABASE_SECRET_KEY exists:",
+        !!process.env.SUPABASE_SECRET_KEY
+    );
+
+    if (!process.env.SUPABASE_URL) {
+        return res.status(500).json({
+            success: false,
+            message: "SUPABASE_URL is not configured."
+        });
+    }
+
+    if (!process.env.SUPABASE_SECRET_KEY) {
+        return res.status(500).json({
+            success: false,
+            message: "SUPABASE_SECRET_KEY is not configured."
+        });
+    }
+
+    const supabase = createClient(
+        process.env.SUPABASE_URL,
+        process.env.SUPABASE_SECRET_KEY
+    );
+
     if (req.method !== "POST") {
         return res.status(405).json({
             success: false,
@@ -17,7 +40,8 @@ export default async function handler(req, res) {
 
     try {
 
-        // Get form data
+        console.log("Request body:", req.body);
+
         const {
             name,
             company,
@@ -29,26 +53,24 @@ export default async function handler(req, res) {
             description
         } = req.body;
 
-        // Validate required fields
         if (!name || !email || !description) {
             return res.status(400).json({
                 success: false,
-                message: "Please fill in all required fields."
+                message: "Name, email and description are required."
             });
         }
 
-        // Insert into Supabase
         const { data, error } = await supabase
             .from("leads")
             .insert([
                 {
                     name,
-                    company,
+                    company: company || null,
                     email,
-                    phone,
-                    service,
-                    budget,
-                    timeline,
+                    phone: phone || null,
+                    service: service || null,
+                    budget: budget || null,
+                    timeline: timeline || null,
                     description,
                     status: "NEW"
                 }
@@ -56,31 +78,31 @@ export default async function handler(req, res) {
             .select()
             .single();
 
-        // Database error
         if (error) {
 
-            console.error("Supabase error:", error);
+            console.error("SUPABASE ERROR:", error);
 
             return res.status(500).json({
                 success: false,
-                message: "Unable to save enquiry."
+                message: error.message
             });
         }
 
-        // Success
+        console.log("Lead created:", data.id);
+
         return res.status(200).json({
             success: true,
-            message: "Your enquiry has been received.",
+            message: "Enquiry submitted successfully.",
             leadId: data.id
         });
 
     } catch (error) {
 
-        console.error("Server error:", error);
+        console.error("SERVER ERROR:", error);
 
         return res.status(500).json({
             success: false,
-            message: "Something went wrong."
+            message: error.message
         });
     }
 }
